@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :signed_in_user, only: [:index, :edit, :update, :destroy]
+  before_action :signed_in_user, only: [:index, :edit, :update, :destroy, :folllowing, :followers]
   before_action :correct_user,   only: [:edit, :update]
   before_action :admin_user, only: :destroy
   
@@ -11,6 +11,7 @@ class UsersController < ApplicationController
   
   def show
     @user = User.find(params[:id])
+    @micropost = @user.microposts.paginate(page: params[:page])
   end
   
   def new
@@ -49,6 +50,20 @@ class UsersController < ApplicationController
     redirect_to users_url
   end
   
+  def folllowing
+    @title = "Following"
+    @user = User.find(params[:id])
+    @users = @user.followed_users.paginate(page: params[:page])
+    render 'show_follow'
+  end
+  
+  def followers
+    @title = "Followers"
+    @user = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    render 'show_follow'
+  end
+  
   
    private
 
@@ -58,11 +73,6 @@ class UsersController < ApplicationController
     end
     
     #before action
-    
-    def signed_in_user
-      store_location
-      redirect_to signin_url, notice: "Please Sign in." unless signed_in?
-    end
     
   def correct_user
       @user = User.find(params[:id])
